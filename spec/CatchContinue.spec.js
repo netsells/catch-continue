@@ -1,4 +1,4 @@
-import CatchContinue from '../src/CatchContinue';
+import CatchContinue from '../src/index';
 
 describe('CatchContinue', () => {
     let cc;

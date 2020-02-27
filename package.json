@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
+    "lint": "eslint src spec",
     "test": "jest",
     "test:mutate": "stryker run",
     "build": "babel src -d dist",
@@ -43,12 +44,14 @@
     "@babel/core": "^7.8.4",
     "@babel/node": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
+    "@netsells/eslint-config": "^3.4.0",
     "@stryker-mutator/babel-transpiler": "^2.5.0",
     "@stryker-mutator/core": "^2.5.0",
     "@stryker-mutator/html-reporter": "^2.5.0",
     "@stryker-mutator/javascript-mutator": "^2.5.0",
     "@stryker-mutator/jest-runner": "^2.5.0",
     "babel-jest": "^24",
+    "eslint": "^6.8.0",
     "jest": "^24"
   }
 }

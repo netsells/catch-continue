@@ -1,9 +1,20 @@
+/**
+ * Catch, retry or continue code blocks.
+ */
 class CatchContinue {
+    /**
+     * Setup the class.
+     */
     constructor() {
         this.segments = [];
         this.pointer = 0;
     }
 
+    /**
+     * Add a segment.
+     *
+     * @param {Function} func
+     */
     add(func) {
         this.segments = [
             ...this.segments,
@@ -11,6 +22,12 @@ class CatchContinue {
         ];
     }
 
+    /**
+     * Run the segments.
+     *
+     * @param {any[]} args - Arguments to pass to each segment.
+     * @throws {any}
+     */
     async run(...args) {
         this.args = args;
 
@@ -19,14 +36,20 @@ class CatchContinue {
         }
     }
 
-    retry() {
-        return this.run(...this.args);
+    /**
+     * Retry the failed segment.
+     */
+    async retry() {
+        await this.run(...this.args);
     }
 
-    continue() {
+    /**
+     * Continue, skipping the failed segment.
+     */
+    async continue() {
         this.pointer++;
 
-        return this.run(...this.args);
+        await this.run(...this.args);
     }
 }
 

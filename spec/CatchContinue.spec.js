@@ -16,6 +16,7 @@ describe('CatchContinue', () => {
     describe('wrap simple', () => {
         let methods;
         let fooArgs;
+        let barArgs;
 
         class Methods {
             constructor() {
@@ -28,8 +29,17 @@ describe('CatchContinue', () => {
                 return new Promise(r => setTimeout(r, 1));
             }
 
-            wrap() {
-                this.cc.wrap(this).foo('bar', 8);
+            bar(...args) {
+                barArgs = args;
+
+                return new Promise(r => setTimeout(r, 1));
+            }
+
+            async wrap() {
+                const wrapper = this.cc.wrap(this);
+
+                wrapper.foo('bar', 8);
+                wrapper.bar('bam', 9);
             }
 
             async run() {
@@ -39,14 +49,16 @@ describe('CatchContinue', () => {
 
         beforeEach(() => {
             fooArgs = null;
+            barArgs = null;
             methods = new Methods();
 
             methods.wrap();
         });
 
         it('can be used to wrap instance methods and delay running them until run called', () => {
-            expect(methods.cc.segments).toHaveLength(1);
+            expect(methods.cc.segments).toHaveLength(2);
             expect(fooArgs).toBe(null);
+            expect(barArgs).toBe(null);
         });
 
         describe('when ran', () => {
@@ -56,6 +68,7 @@ describe('CatchContinue', () => {
 
             it('will call the wrapped method with the args supplied', () => {
                 expect(fooArgs).toEqual(['bar', 8]);
+                expect(barArgs).toEqual(['bam', 9]);
             });
         });
     });

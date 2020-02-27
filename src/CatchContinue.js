@@ -11,6 +11,41 @@ class CatchContinue {
     }
 
     /**
+     * Wrap a class instance to generate a class continue for every function
+     * call.
+     *
+     * @param {Function} funcInstance
+     * @returns {Proxy}
+     */
+    asyncWrap(funcInstance) {
+        return new Proxy({}, {
+            get: (_, prop) => {
+                return (...args) => {
+                    let retVal;
+
+                    this.add(async () => {
+                        const instance = funcInstance();
+
+                        retVal = await instance[prop](...args);
+                    });
+
+                    return this.asyncWrap(() => retVal);
+                };
+            }
+        });
+    }
+
+    /**
+     * Same as asyncWrap but wraps the instance in a function
+     *
+     * @param {Object} instance
+     * @returns {Proxy}
+     */
+    wrap(instance) {
+        return this.asyncWrap(() => instance);
+    }
+
+    /**
      * Add a segment.
      *
      * @param {Function} func

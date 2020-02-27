@@ -13,6 +13,110 @@ describe('CatchContinue', () => {
         args = [];
     });
 
+    describe('wrap simple', () => {
+        let methods;
+        let fooArgs;
+
+        class Methods {
+            constructor() {
+                this.cc = new CatchContinue();
+            }
+
+            foo(...args) {
+                fooArgs = args;
+
+                return new Promise(r => setTimeout(r, 1));
+            }
+
+            wrap() {
+                this.cc.wrap(this).foo('bar', 8);
+            }
+
+            async run() {
+                await this.cc.run();
+            }
+        }
+
+        beforeEach(() => {
+            fooArgs = null;
+            methods = new Methods();
+
+            methods.wrap();
+        });
+
+        it('can be used to wrap instance methods and delay running them until run called', () => {
+            expect(methods.cc.segments).toHaveLength(1);
+            expect(fooArgs).toBe(null);
+        });
+
+        describe('when ran', () => {
+            beforeEach(async () => {
+                await methods.run();
+            });
+
+            it('will call the wrapped method with the args supplied', () => {
+                expect(fooArgs).toEqual(['bar', 8]);
+            });
+        });
+    });
+
+    describe('wrap chainable', () => {
+        let methods;
+        let fooArgs;
+        let barArgs;
+
+        class Methods {
+            constructor() {
+                this.cc = new CatchContinue();
+            }
+
+            foo(...args) {
+                fooArgs = args;
+
+                return this;
+            }
+
+            bar(...args) {
+                barArgs = args;
+
+                return this;
+            }
+
+            wrap() {
+                this.cc.wrap(this).foo('first args').bar('second', 97);
+            }
+
+            async run() {
+                await this.cc.run();
+            }
+        }
+
+        beforeEach(() => {
+            fooArgs = null;
+            barArgs = null;
+            methods = new Methods();
+
+            methods.wrap();
+        });
+
+        it('can be used to wrap instance methods and delay running them until run called', () => {
+            expect(methods.cc.segments).toHaveLength(2);
+            expect(fooArgs).toBe(null);
+            expect(barArgs).toBe(null);
+        });
+
+        describe('when run', () => {
+            beforeEach(async () => {
+                await methods.run();
+            });
+
+            it('calls each function with their args', () => {
+                expect(fooArgs).toEqual(['first args']);
+                expect(barArgs).toEqual(['second', 97]);
+            });
+        });
+    });
+
     describe('with a single error', () => {
         beforeEach(() => {
             error = new Error('Foo');

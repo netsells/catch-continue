@@ -12,7 +12,7 @@ class CatchContinue {
 
     /**
      * Wrap a class instance to generate a class continue for every function
-     * call.
+     * call. Uses proxies to store each call until the segments are ran.
      *
      * @param {Function} funcInstance
      * @returns {Proxy}
@@ -31,14 +31,14 @@ class CatchContinue {
 
                     return this.asyncWrap(() => retVal);
                 };
-            }
+            },
         });
     }
 
     /**
-     * Same as asyncWrap but wraps the instance in a function
+     * Same as asyncWrap but wraps the instance in a function.
      *
-     * @param {Object} instance
+     * @param {object} instance
      * @returns {Proxy}
      */
     wrap(instance) {

@@ -2,7 +2,6 @@ class CatchContinue {
     constructor() {
         this.segments = [];
         this.pointer = 0;
-        this.args = [];
     }
 
     add(func) {

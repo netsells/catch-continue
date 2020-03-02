@@ -113,7 +113,7 @@ describe('CatchContinue', () => {
         });
 
         it('can be used to wrap instance methods and delay running them until run called', () => {
-            expect(methods.cc.segments).toHaveLength(2);
+            expect(methods.cc.segments).toHaveLength(1);
             expect(fooArgs).toBe(null);
             expect(barArgs).toBe(null);
         });
@@ -127,6 +127,14 @@ describe('CatchContinue', () => {
                 expect(fooArgs).toEqual(['first args']);
                 expect(barArgs).toEqual(['second', 97]);
             });
+        });
+    });
+
+    describe('add', () => {
+        it('will return the segment ID', () => {
+            expect(cc.add(() => {})).toBe(0);
+            expect(cc.add(() => {})).toBe(1);
+            expect(cc.add(() => {})).toBe(2);
         });
     });
 

@@ -11,25 +11,25 @@ class CatchContinue {
     }
 
     /**
-     * Wrap a class instance to generate a class continue for every function
-     * call. Uses proxies to store each call until the segments are ran.
+     * Convert a chained method to a function method and append it to a segment.
      *
-     * @param {Function} funcInstance
+     * @private
+     * @param {Function} segmentId
      * @returns {Proxy}
      */
-    asyncWrap(funcInstance) {
+    wrapSegment(segmentId) {
         return new Proxy({}, {
             get: (_, prop) => {
                 return (...args) => {
-                    let retVal;
+                    const wrappedFunc = this.segments[segmentId];
 
-                    this.add(async () => {
-                        const instance = funcInstance();
+                    this.segments[segmentId] = async () => {
+                        const instance = await wrappedFunc();
 
-                        retVal = await instance[prop](...args);
-                    });
+                        return await instance[prop](...args);
+                    };
 
-                    return this.asyncWrap(() => retVal);
+                    return this.wrapSegment(segmentId);
                 };
             },
         });
@@ -42,19 +42,32 @@ class CatchContinue {
      * @returns {Proxy}
      */
     wrap(instance) {
-        return this.asyncWrap(() => instance);
+        return new Proxy({}, {
+            get: (_, prop) => {
+                return (...args) => {
+                    const segmentId = this.add(async () => {
+                        return await instance[prop](...args);
+                    });
+
+                    return this.wrapSegment(segmentId);
+                };
+            },
+        });
     }
 
     /**
      * Add a segment.
      *
      * @param {Function} func
+     * @returns {number}
      */
     add(func) {
         this.segments = [
             ...this.segments,
             func,
         ];
+
+        return this.segments.length - 1;
     }
 
     /**

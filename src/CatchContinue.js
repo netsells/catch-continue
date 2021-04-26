@@ -80,7 +80,17 @@ class CatchContinue {
         this.args = args;
 
         for (; this.pointer < this.segments.length; this.pointer++) {
-            await this.segments[this.pointer](...this.args);
+            const extraSegments = await this.segments[this.pointer](...this.args);
+
+            if (Array.isArray(extraSegments)) {
+                const splitPoint = this.pointer + 1;
+
+                this.segments = [
+                    ...this.segments.slice(0, splitPoint),
+                    ...extraSegments,
+                    ...this.segments.slice(splitPoint),
+                ];
+            }
         }
     }
 

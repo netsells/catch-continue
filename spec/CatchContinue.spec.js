@@ -138,6 +138,56 @@ describe('CatchContinue', () => {
         });
     });
 
+    describe('returning additional segments', () => {
+        let segments;
+
+        beforeEach(() => {
+            segments = [
+                jest.fn(),
+                jest.fn(),
+                jest.fn(),
+                jest.fn(),
+                jest.fn(),
+            ];
+
+            cc.add(segments[0]);
+
+            cc.add(() => {
+                segments[1]();
+
+                return [
+                    segments[2],
+                    segments[3],
+                ];
+            });
+
+            cc.add(segments[4]);
+
+            promise = cc.run();
+        });
+
+        describe('when promise resolved', () => {
+            beforeEach(async () => {
+                await promise;
+            });
+
+            test('calls all segments', () => {
+                segments.forEach(segment => {
+                    expect(segment).toHaveBeenCalled();
+                });
+            });
+
+            test.each([
+                [0, 1],
+                [1, 2],
+                [2, 3],
+                [3, 4],
+            ])('calls the %i segment before the %i segment', (a, b) => {
+                expect(segments[a]).toHaveBeenCalledBefore(segments[b]);
+            });
+        });
+    });
+
     describe('with a single error', () => {
         beforeEach(() => {
             error = new Error('Foo');
